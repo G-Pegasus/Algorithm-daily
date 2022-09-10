@@ -1,5 +1,4 @@
-package array
-
+package list
 
 private fun addTwoNumbers(l1: ListNode?, l2: ListNode?): ListNode? {
     var r1 = l1

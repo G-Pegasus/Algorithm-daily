@@ -1,4 +1,4 @@
-package array;
+package list;
 
 /**
  * LeetCode 第二题

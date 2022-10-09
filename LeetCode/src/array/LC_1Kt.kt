@@ -26,4 +26,5 @@ fun twoSum2(nums: IntArray, target: Int): IntArray {
 fun main() {
     println(twoSum(intArrayOf(2, 7, 11, 15), 9).contentToString())
     println(twoSum2(intArrayOf(2, 7, 11, 15), 9).contentToString())
+    println("\"今天很开心\"".replace("\"", ""))
 }

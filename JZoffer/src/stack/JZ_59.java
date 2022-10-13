@@ -8,6 +8,7 @@ import java.util.Queue;
 public class JZ_59 {
 
     public static int[] maxSlidingWindowMe(int[] nums, int k) {
+        @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
         Queue<Integer> queue = new ArrayDeque<>();
         int[] ans = new int[nums.length - k + 1];
 
@@ -38,25 +39,26 @@ public class JZ_59 {
     // 单调队列，维持队列内一直是递减的状态，这样队列的头部就是当前窗口的最大值
     @SuppressWarnings("ConstantConditions")
     public static int[] maxSlidingWindow(int[] nums, int k) {
-        @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
         Deque<Integer> queue = new ArrayDeque<>();
         int[] ans = new int[nums.length - k + 1];
 
+        // 形成窗口前
         for (int i = 0; i < k; i++) {
             while (!queue.isEmpty() && nums[i] > queue.peekLast()) {
                 queue.pollLast();
             }
-            queue.offer(nums[i]);
+            queue.offerLast(nums[i]);
         }
+        ans[0] = queue.peekFirst();
 
-        ans[0] = queue.peek();
+        // 形成窗口后
         for (int i = k; i < nums.length; i++) {
-            if (queue.peek() == nums[i - k]) queue.pollFirst();
+            if (queue.peekFirst() == nums[i - k]) queue.pollFirst();
             while (!queue.isEmpty() && nums[i] > queue.peekLast()) {
                 queue.pollLast();
             }
-            queue.offer(nums[i]);
-            ans[i - k + 1] = queue.peek();
+            queue.offerLast(nums[i]);
+            ans[i - k + 1] = queue.peekFirst();
         }
 
         return ans;

@@ -1,5 +1,7 @@
 package stack;
 
+import java.util.Arrays;
+
 public class Test {
 
     public static void main(String[] args) {
@@ -14,13 +16,15 @@ public class Test {
 //        System.out.println(test1.deleteHead());
 //        System.out.println(test1.deleteHead());
 
-        JZ_30 test2 = new JZ_30();
-        test2.push(-2);
-        test2.push(0);
-        test2.push(-3);
-        System.out.println(test2.min());
-        test2.pop();
-        System.out.println(test2.top());
-        System.out.println(test2.min());
+//        JZ_30 test2 = new JZ_30();
+//        test2.push(-2);
+//        test2.push(0);
+//        test2.push(-3);
+//        System.out.println(test2.min());
+//        test2.pop();
+//        System.out.println(test2.top());
+//        System.out.println(test2.min());
+
+        System.out.println("adc".substring(0, 0).equals(""));
     }
 }

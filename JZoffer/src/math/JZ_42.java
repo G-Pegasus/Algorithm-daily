@@ -1,12 +1,15 @@
 package math;
 
 import java.util.Arrays;
+import java.util.HashSet;
 
 public class JZ_42 {
 
     public static int maxSubArray(int[] nums) {
         int n = nums.length;
         int[] dp = new int[n];
+        HashSet<Integer> set = new HashSet<>();
+        set.contains(2);
 
         dp[0] = nums[0];
 

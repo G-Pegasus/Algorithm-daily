@@ -349,3 +349,313 @@ TreeNode mBuildTree(
 }
 ```
 
+## 二、动态规划
+
+### 1. 简单问题
+
+#### 剑指offer 42：[连续子数组的最大和](https://leetcode.cn/problems/lian-xu-zi-shu-zu-de-zui-da-he-lcof/)
+
+```java
+public int maxSubArray(int[] nums) {
+    int n = nums.length;
+    int[] dp = new int[n];
+    dp[0] = nums[0];
+    
+    for (int i = 1; i < n; i++) {
+        // 如果上一个数小于0，那么再相加还不如原来大，所以取 dp[i] = nums[i]
+        if (dp[i - 1] < 0) {
+            dp[i] = nums[i];
+        // 如果上一个数是正数，那么就与之前的数相加
+        } else {
+            dp[i] = dp[i - 1] + nums[i];
+        }
+    }
+    
+    Arrays.sort(dp);
+    // dp 中的最大值就是连续数组的最大值
+    return dp[n - 1];
+}
+
+
+// 题解的实现要好得多
+public int maxSubArray(int[] nums) {
+    int res = nums[0];
+    
+    for (int i = 1; i < n; i++) {
+        nums[i] += Math.max(res, 0);
+        res = Math.max(nums[i], res);
+    }
+    
+    return res;
+}
+```
+
+### 2. 中等问题
+
+#### 剑指offer 14：[剪绳子](https://leetcode.cn/problems/jian-sheng-zi-lcof/)Ⅰ
+
+```java
+// 方法一：动态规划
+// 每个正整数对应的最大乘积取决于比它小的正整数对应的最大乘积
+// 0 和 1 不能继续拆分，所以 dp[0] = dp[1] = 0，so 2 <= i <= n and 1 <= j < i.
+// 所以有两种情况，拆分或者不拆分
+// 1.拆分就取 j * dp[i - j]
+// 2.不拆分就取 j * (i - j)
+public int cuttingRope(int n) {
+    int[] dp = new int[n + 1];
+    for (int i = 2; i <= n; i++) {
+        int curMax = 0;
+        for (int j = 1; j < i; j++) {
+            curMax = Math.max(curMax, Math.max(j * (i - j), j * dp[i - j]));
+        }
+        dp[i] = curMax;
+    }
+    return dp[n];
+}
+
+
+// 方法二：数学方法
+// 如果拆分结果中有4，可以继续拆分成 2 * 2
+// 而且如果有3个2，则可以替换成2个3，因为 3 * 3 > 2 * 2 * 2
+// 由此可知，当 n >= 4时，拆分结果中仅有 2和3
+public int cuttingRope(int n) {
+    if (n == 2) return 1;
+    if (n == 3) return 2;
+    
+    int a = n / 3;
+    int b = n % 3;
+    if (b == 0) {
+        return (int) Math.pow(3, a);
+    } else if (b == 1) {
+        return (int) Math.pow(3, a - 1) * 4;
+    } else {
+        return (int) Math.pow(3, a) * 2;
+    }
+}
+
+```
+
+#### 剑指offer 46：[把数字翻译成字符串](https://leetcode.cn/problems/ba-shu-zi-fan-yi-cheng-zi-fu-chuan-lcof/)
+
+```java
+// 动态规划，类似于斐波那契进阶版
+// dp[0] = dp[1] = 1
+// if 当前的数字在 10~25 之间就执行 dp[i] = dp[i-1] + dp[i-2]
+// else dp[i] = dp[i-1]
+public int translateNum(int num) {
+    String s = String.valueOf(num);
+    int n = s.length();
+    int a = 1, b = 1;
+    
+    for (int i = 2; i <= n; i++) {
+        int tmp = Integer.parseInt(s.substring(i - 2, i));
+        int c = tmp >= 10 && tmp <= 25 ? a + b : b;
+        a = b;
+        b = c;
+    }
+    
+    return b;
+}
+```
+
+#### 剑指offer 47：[礼物的最大价值](https://leetcode.cn/problems/li-wu-de-zui-da-jie-zhi-lcof/)
+
+```java
+// 我自己的垃圾思路，每次dp的位置都是本位置与上下的最大值相加
+public int maxValue(int[][] grid) {
+    int[][] dp = new int[grid.length][grid[0].length];
+    dp[0][0] = grid[0][0];
+    
+    for (int i = 0; i < grid.length; i++) {
+        for (int j = 0; j < grid[0].length; j++) {
+            if (i > 0 && j > 0) {
+                dp[i][j] = Math.max(dp[i - 1][j] + grid[i][j], dp[i][j - 1] + grid[i][j]);
+            } else if (i > 0) {
+                dp[i][j] = dp[i - 1][j] + grid[i][j];
+            } else if (j > 0) {
+                dp[i][j] = dp[i][j - 1] + grid[i][j];
+            }
+        }
+    }
+        
+    return dp[grid.length - 1][grid[0].length - 1];
+}
+
+
+// 大佬的优化解法，因为之前只有一行或者一列的时候都要在循环里加两层判断，所以这个直接提出来
+// 并且他还没有另开一个数组，直接在原数组上修改了
+public int maxValue(int[][] grid) {
+    int m = grid.length, n = grid[0].length;
+    
+    for(int j = 1; j < n; j++) // 初始化第一行
+        grid[0][j] += grid[0][j - 1];
+    
+    for(int i = 1; i < m; i++) // 初始化第一列
+        grid[i][0] += grid[i - 1][0];
+    
+    for(int i = 1; i < m; i++)
+        for(int j = 1; j < n; j++) 
+            grid[i][j] += Math.max(grid[i][j - 1], grid[i - 1][j]);
+    
+    return grid[m - 1][n - 1];
+}
+```
+
+#### 剑指offer 49：[丑数](https://leetcode.cn/problems/chou-shu-lcof/)
+
+```java
+// 思路比较简单，看代码就能看懂
+public int nthUglyNumber(int n) {
+    int[] dp = new int[n];
+    int a = 0, b = 0, c = 0;
+    dp[0] = 1;
+    
+    for (int i = 1; i < n; i++) {
+        dp[i] = Math.min(Math.min(dp[a] * 2, dp[b] * 3), dp[c] * 5);
+        if (dp[i] == dp[a] * 2) a++;
+        if (dp[i] == dp[b] * 3) b++;
+        if (dp[i] == dp[c] * 5) c++;
+    }
+    
+    return dp[n - 1];
+}
+```
+
+#### 剑指offer 60：[ n个骰子的点数](https://leetcode.cn/problems/nge-tou-zi-de-dian-shu-lcof/)
+
+```java
+// 此题真的好难，555~
+// dp.length = 5 * n + 1 长度，也就是说，迭代的时候吗，每次加5
+public double[] dicesProbability(int n) {
+    double[] dp = new double[6];
+    Arrays.fill(dp, 1.0 / 6.0);
+    
+    for (int i = 2; i <= n; i++) {
+        double[] res = new double[5 * i + 1];
+        for (int j = 0; j < dp.length; j++) {
+            for (int k = 0; k < 6; k++) {
+                res[j + k] += dp[j] / 6.0;
+            }
+        }
+        dp = res;
+    }
+    
+    return dp;
+}
+```
+
+太难了，不知道怎么解释，放几张图片更好
+
+![step1](https://pic.leetcode.cn/1614960989-vkPMks-Picture4.png)
+
+![step2](https://pic.leetcode.cn/1614960989-lzbHYA-Picture5.png)
+
+![step3](https://pic.leetcode.cn/1614960989-pNSQec-Picture6.png)
+
+![step4](https://pic.leetcode.cn/1614960989-oRLcts-Picture7.png)
+
+![step5](https://pic.leetcode.cn/1614960989-SlimYn-Picture10.png)
+
+以此类推...
+
+![step6](https://pic.leetcode.cn/1614960989-AnyWXD-Picture11.png)
+
+![step7](https://pic.leetcode.cn/1614960989-WyeOfz-Picture12.png)
+
+#### 剑指offer 63：[股票的最大利润](https://leetcode.cn/problems/gu-piao-de-zui-da-li-run-lcof/)
+
+```java
+// 定义一个花销 cost，和当前 price 比较，比它小就不动了
+// 收益 profit = max(profit, price - cost)
+public static int maxProfit(int[] prices) {
+    int cost = Integer.MAX_VALUE, profit = 0;
+    
+    for (int price: prices) {
+        cost = Math.min(cost, price);
+        profit = Math.max(profit, price - cost);
+    }
+    
+    return profit;
+}
+```
+
+
+
+## 三、其他算法
+
+### 1. 双指针对撞
+
+#### 剑指offer 57：[和为s的两个数字](https://leetcode.cn/problems/he-wei-sde-liang-ge-shu-zi-lcof/)Ⅰ
+
+```java
+// 先写上我自己的垃圾算法
+// 主要是构建哈希集合，然后寻找两个符合条件的数
+public int[] twoSum(int[] nums, int target) {
+    Set<Integer> set = new HashSet<>();
+    int[] ans = new int[2];
+    
+    for (int num : nums) {
+        set.add(num);
+        if (set.contains(target - num)) {
+            ans[0] = num;
+            ans[1] = target - num;
+        }
+    }
+    
+    return ans;
+}
+
+
+
+// 再来看看大佬的解法
+public int[] twoSum(int[] nums, int target) {
+    int n = nums.length;
+    int l = 0, r = n - 1;
+    
+    while (l < r) {
+        if ((nums[l] + nums[r]) == target) {
+            return new int[]{nums[l], nums[r]};
+        } else if ((nums[l] + nums[r]) < target) {
+           	l++;
+        } else {
+            r--;
+        }
+    }
+    
+    return new int[0];
+}
+```
+
+### 2. 滑动窗口
+
+#### 剑指offer 57：[和为s的两个数字](https://leetcode.cn/problems/he-wei-sde-liang-ge-shu-zi-lcof/)Ⅱ
+
+``` java
+// 滑动窗口问题
+public int[][] findContinuousSequence(int target) {
+    int start = 1, end = 2, sum = 3;
+    ArrayList<int[]> ans = new ArrayList<>();
+    
+    while (start < end) {
+        if (sum == target) {
+            int[] res = new int[end - start + 1];
+            for (int i = start; i <= end; i++) {
+                res[i - start] = i;
+            }
+            ans.add(res);
+        }
+        
+        // 如果此时 sum >= target 那么头部的窗口向右移一格，反之尾部窗口向左移一格
+        if (sum >= target) {
+            sum -= start;
+            start--;
+        } else {
+            end++;
+            sum += end;
+        }
+    }
+    
+    return ans.toArray(new int[0][]);
+}
+```
+

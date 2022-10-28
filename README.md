@@ -1,6 +1,432 @@
 # 数据结构经典模板与例题
 
-## 一、二叉树
+## 一、排序&查找
+
+### 1. 快速排序
+
+```java
+public int[] quickSort(int[] nums) {
+    return sort(nums, 0, nums.length - 1);
+}
+
+int[] sort(int[] nums, int left, int right) {
+    if (left < right) {
+        int index = randomPartition(nums, left, right);
+        sort(nums, left, index - 1);
+        sort(nums, index + 1, right);
+    }
+    return nums;
+}
+
+// 随机选取一个基准，会更快一些
+int randomPartition(int[] nums, int left, int right) {
+    int index = new Random(right - left + 1) + left;
+    swap(nums, index, left);
+    return partition(nums, left, right);
+}
+
+int partition(int[] nums, int left, int right) {
+    int index = left + 1;
+    for (int i = index; i <= right; i++) {
+        if (nums[i] < nums[left]) {
+            swap(nums, i, index);
+            index++;
+        }
+    }
+    swap(nums, index - 1, left);
+    return index - 1;
+}
+
+int swap(int[] nums, int i, int j) {
+    int temp = nums[i];
+    nums[i] = nums[j];
+    nums[j] = temp;
+}
+```
+
+#### 力扣 215：[数组中的第K个最大元素](https://leetcode.cn/problems/kth-largest-element-in-an-array/)
+
+```java
+// 快速选择算法
+public int findKthLargest(int[] nums, int k) {
+    return quickSelect(nums, 0, nums.length - 1, nums.length - k);
+}
+
+int quickSelect(int[] arr, int left, int right, int index) {
+    int q = randomPartition(arr, left, right);
+    if (q == index) {
+        return arr[q];
+    } else {
+        return q < index ? quickSelect(arr, q + 1, right) : quickSelect(arr, left, q - 1);
+    }
+}
+
+int randomPartition(int[] arr, int left, int right) {
+    int index = new Random().nextInt(right - left + 1) + left;
+    swap(arr, right, index);
+    return partition(arr, left, right);
+}
+
+int partition(int[] arr, int left, int right) {
+    int index = left, x = arr[right];
+    // 有比最右边小的，都放在左边
+    for (int j = left; j < right; j++) {
+        if (arr[j] <= x) {
+            swap(arr, index++, j);
+        }
+    }
+    // 最后，把最右边的和index交换，这样在index左边的都是比它小的
+    swap(arr, index, right);
+    return index;
+}
+
+void swap(int[] arr, int i, int j) {
+    int temp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = temp;
+}
+```
+
+
+
+### 2. 归并排序
+
+```java
+public int[] mergeSort(int[] arr) {
+    if (arr.length < 2) return arr;
+    
+    int mid = arr.length / 2;
+    int[] left = Arrays.copyOfRange(arr, 0, mid);
+    int[] right = Arrays.copyOfRange(arr, mid, arr.length);
+    
+    return sort(mergeSort(left), mergeSort(right));
+}
+
+int[] sort(int[] left, int[] right) {
+    int[] ans = new int[left.length + right.length];
+    int i = 0;
+    
+    while (left.length > 0 && right.length > 0) {
+        if (left[0] < right[0]) {
+            ans[i++] = left[0];
+            left = Arrays.copyOfRange(left, 1, left.length);
+        } else {
+            ans[i++] = right[0];
+            right = Arrays.copyOfRange(right, 1, right.length);
+        }
+    }
+    
+    while (left.length > 0) {
+        ans[i++] = left[0];
+        left = Arrays.copyOfRange(left, 1, left.length);
+    }
+    
+    while (right.length > 0) {
+        ans[i++] = right[0];
+        right = Arrays.copyOfRange(right, 1, right.length);
+    }
+    
+    return ans;
+}
+```
+
+### 3. 选择排序
+
+```java
+public int[] SelectionSort(int[] arr) {
+	// 总共要经过 n-1 轮比较
+	for (int i = 0; i < arr.length - 1; i++) {
+    	int min = i;
+
+    	// 每轮需要比较的次数 n-i
+        for (int j = i + 1; j < arr.length; j++) {
+        	if (arr[j] < arr[min]) {
+            	// 记录目前能找到的最小值元素的下标
+                min = j;
+            }
+        }
+
+        // 将找到的最小值和i位置所在的值进行交换
+        if (i != min) {
+        	int tmp = arr[i];
+            arr[i] = arr[min];
+            arr[min] = tmp;
+        }
+	}
+    
+    return arr;
+}
+```
+
+### 4. 插入排序
+
+```java
+public int[] insertSort(int[] arr) {
+	 // 从下标为1的元素开始选择合适的位置插入，因为下标为0的只有一个元素，默认是有序的
+     for (int i = 1; i < arr.length; i++) {
+
+     	// 记录要插入的数据
+        int tmp = arr[i];
+
+        // 从已经排序的序列最右边的开始比较，找到比其小的数
+        int j = i;
+        while (j > 0 && tmp < arr[j - 1]) {
+        	arr[j] = arr[j - 1];
+            j--;
+        }
+
+        // 存在比其小的数，插入
+        if (j != i) {
+        	arr[j] = tmp;
+        }
+
+	}
+    return arr;    
+}
+```
+
+### 5. 堆排序
+
+```java
+public int[] heapSort(int[] arr) {
+    int len = arr.length;
+    buildMaxHeap(arr, len);
+    
+    for (int i = len - 1; i > 0; i--) {
+        swap(arr, 0, i);
+        len--;
+        heapify(arr, 0, len);
+    }
+    
+    return arr;
+}
+
+void buildMaxHeap(int[] arr, int len) {
+    for (int i = len << 1; i >= 0; i--) {
+        heapify(arr, i, len);
+    }
+}
+
+void heapify(int[] arr, int i, int len) {
+    int left = 2 * i + 1;
+    int right = 2 * i + 2;
+    int largest = i;
+    
+    if (left < len && arr[left] > arr[largest]) {
+        largest = left;
+    }
+    
+    if (right < len && arr[right] > arr[largest]) {
+        largest = right;
+    }
+    
+    if (largest != i) {
+        swap(arr, i, largest);
+        heapify(arr, largest, len);
+    }
+}
+
+void swap(int[] arr, int i, int j) {
+    int temp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = temp;
+}
+```
+
+### 6. 二分查找
+
+#### 剑指offer 53：[在排序数组中查找数字 I](https://leetcode.cn/problems/zai-pai-xu-shu-zu-zhong-cha-zhao-shu-zi-lcof/)
+
+```java
+public int search(int[] nums, int target) {
+    return helper(nums, target) - helper(nums, target - 1);
+}
+
+int helper(int nums[], int target) {
+    int left = 0, right = nums.length - 1;
+    
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        
+        if (nums[mid] <= target) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+    
+    return left;
+}
+```
+
+#### 剑指offer 53： [0～n-1中缺失的数字](https://leetcode.cn/problems/que-shi-de-shu-zi-lcof/)
+
+```java
+public int missingNumber(int[] nums) {
+    int left = 0, right = nums.length - 1;
+    
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        if (nums[mid] == mid) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+    
+    return left;
+}
+```
+
+### 7. 其他查找方法
+
+#### 剑指offer 4：[二维数组中的查找](https://leetcode.cn/problems/er-wei-shu-zu-zhong-de-cha-zhao-lcof/)
+
+```java
+// 神级思路，无敌了
+// 将这个二维数组看做一个类似于二叉树的结构
+// 从左下角开始，当前数 < target，则删除当前数所在列；当前数 > target，则删除当前数所在行
+public boolean findNumberIn2DArray(int[][] matrix, int target) {
+    int i = matrix.length - 1, j = 0;
+    while (i >= 0 && j < matrix[0].length) {
+        if (matrix[i][j] < target) j++;
+        else if (matrix[i][j] > target) i--;
+        else return true;
+    }
+    return false;
+}
+```
+
+#### 剑指offer 44：[数字序列中某一位的数字](https://leetcode.cn/problems/shu-zi-xu-lie-zhong-mou-yi-wei-de-shu-zi-lcof/)
+
+```java
+// 涉及到数学知识
+public int findNthDigit(int n) {
+    int digit = 1;
+    long start = 1;
+    long count = 9;
+    
+    while (n > count) {
+        n -= count;
+        digit++;
+        start *= 10;
+        count = 9 * start * digit;
+    }
+    
+    long num = start + (n - 1) / digit;
+    int ans = (n - 1) % digit;
+    return (num + "").charAt(ans) - '0';
+}
+```
+
+
+
+## 二、链表&数组
+
+### 1. 力扣 25：[K 个一组翻转链表](https://leetcode.cn/problems/reverse-nodes-in-k-group/)
+
+```java
+public ListNode reverseKGroup(ListNode head, int k) {
+    ListNode temp = new ListNode(0);
+    temp.next = head;
+    
+    ListNode pre = temp;
+    ListNode end = temp;
+    
+    while (end.next != null) {
+        for (int i = 0; i < k && end != null; i++) end = end.next;
+        if (end == null) break;
+        
+        ListNode start = pre.next;
+        ListNode next = end.next;
+        end,next = null;
+        pre.next = reverse(start);
+        start.next = next;
+        
+        pre = start;
+        end = pre;
+    }
+    
+    return temp.next;
+}
+
+// 反转链表的方法
+ListNode reverse(ListNode head) {
+    ListNode pre = null, curr = head;
+    while (curr != null) {
+        ListNode next = curr.next;
+        curr.next = pre;
+        pre = curr;
+        curr = next;
+    }
+    return pre;
+}
+```
+
+### 2. 剑指offer 29 & 力扣 54 [螺旋矩阵](https://leetcode.cn/problems/spiral-matrix/)
+
+```java
+public List<Integer> spiralOrder(int[][] matrix) {
+    int left = 0, right = matrix[0].length - 1;
+    int top = 0, bottom = matrix.length - 1;
+    List<Integer> ans = new ArrayList<>();
+    
+    while (true) {
+        for (int i = left; i <= right; i++) ans.add(matrix[top][i]);
+        if (++top > bottom) break;
+        
+        for (int i = top; i <= bottom; i++) ans.add(matrix[i][right]);
+        if (--right < left) break;
+        
+        for (int i = right; i >= left; i--) ans.add(matrix[bottom][i]);
+        if (--bottom < top) break;
+        
+        for (int i = bottom; i >= top; i--) ans.add(matrix[i][left]);
+        if (++left > right) break;
+    }
+    
+    return ans;
+}
+```
+
+### 3. 力扣 15：[三数之和](https://leetcode.cn/problems/3sum/)
+
+```java
+public List<List<Integer>> threeSum(int[] nums) {
+    int n = nums.length;
+    Arrays.sort(nums);
+    List<List<Integer>> ans = new ArrayList<>();
+    
+    for (int first = 0; first < n; first++) {
+        if (first > 0 && nums[first] == nums[first - 1]) continue;
+        
+        int third = n - 1;
+        int target = nums[first];
+        
+        for (int second = first + 1; second < n; second++) {
+            if (second > first + 1 && nums[second] == nums[second - 1]) continue;
+            
+            while (second < third && nums[second] + nums[third] > target) third--;
+            
+            if (second == third) break;
+            
+            if (nums[second] + nums[third] == target) {
+                List<Integer> list = new ArrayList<>();
+                list.add(first);
+                list.add(second);
+                list.add(third);
+                ans.add(list);
+            }
+        }
+    }
+    
+    return ans;
+}
+```
+
+
+
+## 三、二叉树
 
 ### 1. 二叉树的中序遍历
 
@@ -103,13 +529,13 @@ boolean recue(TreeNode A, TreeNode B) {
 
 ```java
 // 意思就是翻转二叉树，左右孩子互换位置
-public static TreeNode mirrorTree(TreeNode root) {
+public TreeNode mirrorTree(TreeNode root) {
     if (root == null) return null;
     mirrorTool(root);
     return root;
 }
 
-static void mirrorTool(TreeNode root) {
+void mirrorTool(TreeNode root) {
     TreeNode temp;
     
     temp = root.left;
@@ -349,7 +775,7 @@ TreeNode mBuildTree(
 }
 ```
 
-## 二、动态规划
+## 四、动态规划
 
 ### 1. 简单问题
 
@@ -382,7 +808,7 @@ public int maxSubArray(int[] nums) {
     int res = nums[0];
     
     for (int i = 1; i < n; i++) {
-        nums[i] += Math.max(res, 0);
+        nums[i] += Math.max(nums[n - 1], 0);
         res = Math.max(nums[i], res);
     }
     
@@ -581,7 +1007,7 @@ public static int maxProfit(int[] prices) {
 
 
 
-## 三、其他算法
+## 五、其他算法
 
 ### 1. 双指针对撞
 
@@ -656,6 +1082,77 @@ public int[][] findContinuousSequence(int target) {
     }
     
     return ans.toArray(new int[0][]);
+}
+```
+
+### 3. 哈希
+
+#### 力扣 3：[无重复字符的最长子串](https://leetcode.cn/problems/longest-substring-without-repeating-characters/)
+
+```java
+// 该题属于滑动窗口 + 哈希
+public int lengthOfLongestSubstring(String s) {
+    Set<Character> maxString = new HashSet<>();
+    int n = s.length();
+    int right = -1, maxLength = 0;
+    
+    for (int i = 0; i < n; i++) {
+        if (i != 0) {
+            maxString.remove(s.charAt(i - 1));
+        }
+        
+        // 循环直到遇到 HashSet 中存在的字符
+        while (rigth + 1 < n && !maxString.contains(s.charAt(rigth + 1))) {
+            maxString.add(s.charAt(right++ + 1));
+        }
+        maxLength = Math.max(maxLength, right - i + 1);
+    }
+    return maxLength;
+}
+```
+
+#### 力扣 146：[LRU 缓存](https://leetcode.cn/problems/lru-cache/)
+
+```java
+Map<Integer, Integer> map;
+Deque<Integer> deque;
+int capacity;
+
+// 本题思路为：通过定义一个队列，put的时候如果此时map中有这个key，那么替换其value，并在队列中转移到最后面代表是最近使用过的。
+// 如果没有这个key，判断是否超出容量，如果没有超出，则put进map和队列；
+// 如果超出了，就将队列最前面的key取出来，在map中删除然后再添加新元素。(因为队列最前面的元素是最久没用过的)
+// get的时候，判断map中是否有这个key，如果有，就将其在队列中删除再添加进队尾，表示最近使用过。
+public LRUCache(int capacity) {
+    map = new HashMap<>(capacity);
+    deque = new ArrayDeque<>(capacity);
+    this.capacity = capacity;
+}
+
+public int get(int key) {
+    if (map.containsKey(key)) {
+        deque.remove(key);
+        deque.offerLast(key);
+        return map.get(key);
+    }
+    return -1;
+}
+
+public void put(int key, int value) {
+    if (map.containsKey(key)) {
+        map.replace(key, value);
+        deque.remove(key);
+        deque.offerLast(key);
+    } else {
+        if (deque.size() < capacity) {
+            map.put(key, value);
+            deque.offerLast(key);
+        } else {
+            int key1 = deque.pollFirst();
+            deque.offerLast(key);
+            map.remove(key1);
+            map.put(key, value);
+        }
+    }
 }
 ```
 

@@ -57,7 +57,7 @@ int quickSelect(int[] arr, int left, int right, int index) {
     if (q == index) {
         return arr[q];
     } else {
-        return q < index ? quickSelect(arr, q + 1, right) : quickSelect(arr, left, q - 1);
+        return q < index ? quickSelect(arr, q + 1, right, index) : quickSelect(arr, left, q - 1, index);
     }
 }
 
@@ -401,7 +401,7 @@ public List<List<Integer>> threeSum(int[] nums) {
         if (first > 0 && nums[first] == nums[first - 1]) continue;
         
         int third = n - 1;
-        int target = nums[first];
+        int target = -nums[first];
         
         for (int second = first + 1; second < n; second++) {
             if (second > first + 1 && nums[second] == nums[second - 1]) continue;
@@ -672,6 +672,39 @@ void bfs(TreeNode root) {
 }
 ```
 
+#### 力扣 199：[二叉树的右视图](https://leetcode.cn/problems/binary-tree-right-side-view/)
+
+```java
+// 终归还是层序遍历，只不过加入链表中的是每层的最后一个结点
+public List<Integer> rightSideView(TreeNode root) {
+    List<Integer> ans = new ArrayList<>();
+    Queue<TreeNode> queue = new ArrayDeque<>();
+    
+    if (root != null) queue.offer(root);
+    
+    while (!queue.isEmpty()) {
+        int n = queue.size();
+        
+        for (int i = 0; i < n; i++) {
+            TreeNode node = queue.poll();
+            if (i == n - 1) {
+                ans.add(node.val);
+            }
+            
+            if (node.left != null) {
+                queue.offer(node.left);
+            }
+            
+            if (node.right != null) {
+                queue.offer(node.right);
+            }
+        }
+    }
+    
+    return ans;
+}
+```
+
 
 
 ### 树的综合例题
@@ -723,7 +756,7 @@ public int maxDepth(TreeNode root) {
     else {
         int leftDepth = maxDepth(root.left);
         int rightDepth = maxDepth(root.right);
-        return Math.max(leftDepth + rightDepth) + 1;
+        return Math.max(leftDepth, rightDepth) + 1;
     }
 }
 ```
@@ -774,6 +807,22 @@ TreeNode mBuildTree(
     return root;
 }
 ```
+
+#### 5. 力扣 110：[平衡二叉树](https://leetcode.cn/problems/balanced-binary-tree/)
+
+```java
+public boolean isBalanced(TreeNode root) {
+    if (root == null) return true;
+    return (Math.abs(deepth(root.left) - deepth(root.right)) >= 1) && isBalanced(root.left) && isBalanced(root,right);
+}
+
+int deepth(TreeNode root) {
+    if (root == null) return 0;
+    return Math.max(deepth(root.left), deepth(root.right)) + 1;
+}
+```
+
+
 
 ## 四、动态规划
 
@@ -1005,6 +1054,33 @@ public static int maxProfit(int[] prices) {
 }
 ```
 
+#### 力扣 221：[最大正方形](https://leetcode.cn/problems/maximal-square/)
+
+```java
+public int maximalSquare(char[][] matrix) {
+    int rows = matrix.length, columns = matrix[0].length;
+    int maxSide = 0;
+    int[][] dp = new int[rows][columns];
+    
+    if (matrix == null || rows == 0 || columns == 0) return 0;
+    
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < columns; j++) {
+            if (matrix[i][j] == '1') {
+                if (i == 0 || j == 0) {
+                    dp[i][j] == 1;
+                } else {
+                    dp[i][j] = Math.min(Math.min(dp[i - 1][j], dp[i][j - 1]), dp[i - 1][j - 1]);
+                }
+            }
+            maxSide = Math.max(maxSide, dp[i][j]);
+        }
+    }
+    
+    return maxSide * maxSide;
+}
+```
+
 
 
 ## 五、其他算法
@@ -1087,14 +1163,14 @@ public int[][] findContinuousSequence(int target) {
 
 ### 3. 哈希
 
-#### 力扣 3：[无重复字符的最长子串](https://leetcode.cn/problems/longest-substring-without-repeating-characters/)
+#### 剑指offer 48 & 力扣 3：[无重复字符的最长子串](https://leetcode.cn/problems/longest-substring-without-repeating-characters/)
 
 ```java
 // 该题属于滑动窗口 + 哈希
 public int lengthOfLongestSubstring(String s) {
     Set<Character> maxString = new HashSet<>();
     int n = s.length();
-    int right = -1, maxLength = 0;
+    int right = 0, maxLength = 0;
     
     for (int i = 0; i < n; i++) {
         if (i != 0) {
@@ -1102,10 +1178,10 @@ public int lengthOfLongestSubstring(String s) {
         }
         
         // 循环直到遇到 HashSet 中存在的字符
-        while (rigth + 1 < n && !maxString.contains(s.charAt(rigth + 1))) {
-            maxString.add(s.charAt(right++ + 1));
+        while (rigth < n && !maxString.contains(s.charAt(rigth))) {
+            maxString.add(s.charAt(right++));
         }
-        maxLength = Math.max(maxLength, right - i + 1);
+        maxLength = Math.max(maxLength, right - i);
     }
     return maxLength;
 }
@@ -1155,4 +1231,67 @@ public void put(int key, int value) {
     }
 }
 ```
+
+#### 力扣 41：[缺失的第一个正数](https://leetcode.cn/problems/first-missing-positive/)
+
+```java
+// 原地哈希
+public int firstMissingPositive(int[] nums) {
+    int n = nums.length;
+    HashMap<Integer, Integer> map = new HashMap<>();
+    
+    for (int i = 0; i < n; i++) {
+        if (nums[i] <= 0) nums[i] = n + 1;
+        map.put(i + 1, nums[i]);
+    }
+    
+    for (int i = 1; i <= n; i++) {
+        if (map.get(i) <= n) {
+            nums[map.get(i) - 1] = nums[map.get(i) - 1] > 0 ? -nums[map.get(i) - 1] : nums[map.get(i) - 1];
+        }
+    }
+    
+    for (int i = 0; i < n; i++) {
+        if (nums[i] > 0) {
+            return i + 1;
+        }
+    }
+    
+    return n + 1;
+}
+```
+
+### 4. 深度优先搜索
+
+#### 力扣 200：[岛屿数量](https://leetcode.cn/problems/number-of-islands/)
+
+```java
+public int numIslands(char[][] grid) {
+    if (grid == null || grid.length == 0) return 0;
+    
+    int nr = grid.length, nr = grid.length;
+    int num = 0;
+    
+    for (int r = 0; r < nr; r++) {
+        for (int c = 0; c < nc; c++) {
+            num++;
+            dfs(grid, r, c);
+        }
+    }
+    
+    return num;
+}
+
+void dfs(char[][] grid, int r, int c) {
+    int nr = grid.length, nr = grid.length;
+    if (r < 0 || c < 0 || c >= nc || r >= nr || grid[r][c] == '0') return;
+    
+    grid[r][c] = '0'; // 与 ‘1’ 相邻的 ‘1’ 标记为 ‘0’
+    dfs(grid, r - 1, c);
+    dfs(grid, r + 1, c);
+    dfs(grid, r, c - 1);
+    dfs(grid, r, c + 1);
+}
+```
+
 

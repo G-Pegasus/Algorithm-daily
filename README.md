@@ -822,6 +822,22 @@ int deepth(TreeNode root) {
 }
 ```
 
+#### 力扣 543：[二叉树的直径](https://leetcode.cn/problems/diameter-of-binary-tree/)
+
+```java
+public int diameterOfBinaryTree(TreeNode root) {
+	if (root == null || (root.left == null && root.right == null)) return 0;
+
+    return Math.max(deepth(root.left) + deepth(root.right), 		Math.max(diameterOfBinaryTree(root.left),diameterOfBinaryTree(root.right)));
+}
+
+int deepth(TreeNode root) {
+    if (root == null) return 0;
+    return Math.max(deepth(root.left), deepth(root.right)) + 1;
+}
+```
+
+
 
 
 ## 四、动态规划
@@ -1080,6 +1096,30 @@ public int maximalSquare(char[][] matrix) {
     return maxSide * maxSide;
 }
 ```
+
+#### 力扣 1143：[最长公共子序列](https://leetcode.cn/problems/longest-common-subsequence/)
+
+```java
+public int longestCommonSubsequence(String text1, String text2) {
+    int len1 = text1.length(), len2 = text2.length();
+    int[][] dp = new int[len1 + 1][len2 + 1];
+    
+    for (int i = 1; i <= len1; i++) {
+        char t1 = text1.charAt(i - 1);
+        for (int j = 1; j <= len2; j++) {
+            char t2 = text2.charAt(j - 1);
+            if (t1 == t2) {
+                dp[i][j] = dp[i - 1][j - 1] + 1;
+            } else {
+                dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+            }
+        }
+    }
+    
+    return dp[len1][len2];
+}
+```
+
 
 
 

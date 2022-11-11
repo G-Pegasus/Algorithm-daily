@@ -1,11 +1,16 @@
 package tree;
 
+import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class JZ_27 {
 
     public static TreeNode mirrorTree(TreeNode root) {
         if (root == null) return null;
 
         mirrorTool(root);
+        HashMap<Integer, Integer> map = new HashMap<>();
+        ConcurrentHashMap<Integer, Integer> map1 = new ConcurrentHashMap<>();
 
         return root;
     }

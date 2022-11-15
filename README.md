@@ -424,6 +424,109 @@ public List<List<Integer>> threeSum(int[] nums) {
 }
 ```
 
+### 4. 力扣 82：[删除排序链表中的重复元素 II](https://leetcode.cn/problems/remove-duplicates-from-sorted-list-ii/)
+
+```java
+public ListNode deleteDuplicates(ListNode head) {
+    if (head == null || head.next == null) return head;
+    
+    // 定义一个哑结点
+    ListNode pre = new ListNode(-1);
+    pre.next = head;
+    ListNode preTemp = pre;
+    
+    while (preTemp.next != null && preTemp.next.next != null) {
+        if (preTemp.next.val == preTemp.next.next.val) {
+            int x = preTemp.next.val;
+            while (preTemp.next != null && x == preTemp.next.val) {
+                preTemp.next = preTemp.next.next;
+            }
+        } else {
+            preTemp = preTemp.next;
+        }
+    }
+    
+    return pre.next;
+}
+```
+
+### 5. 力扣 56：[合并区间](https://leetcode.cn/problems/merge-intervals/)
+
+```java
+// 对二维数组按第一个数进行排序，然后比较
+public int[][] merge(int[][] intervals) {
+    if (intervals.length == 1) return intervals;
+    
+    Arrays.sort(intervals, new Comparator<int[]>() {
+        public int compare(int[] interval1, int[] interval2) {
+            return interval1[0] - interval2[1];
+        }
+    });
+    
+    List<int[]> ans = new ArrayList<>();
+    for (int i = 0; i < intervals.length; i++) {
+        int left = intervals[i][0], right = intervals[i][1];
+        if (ans.size() == 0 || left > ans.get(ans.size() - 1)[1]) {
+            ans.add(new int[]{left, right});
+        } else {
+            ans.get(ans.size() - 1)[1] = Math.max(right, ans.get(ans.size() - 1)[1]);
+        }
+    }
+    
+    return ans.toArray(new int[ans.size()][]);
+}
+```
+
+### 6. 力扣 2：[两数相加](https://leetcode.cn/problems/add-two-numbers/)
+
+```java
+public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+    ListNode head = null, tail = null;
+    // 进位
+    int carry = 0;
+    
+    while (l1 != null || l2 != null) {
+        int n1 = l1 != null ? l1.val : 0;
+        int n2 = l2 != null ? l2.val : 0;
+        int sum = n1 + n2 + carry;
+        
+        if (head == null) {
+            head = tail = new ListNode(sum % 10); // 取个位数
+        } else {
+            tail.next = new ListNode(sum % 10);
+            tail = tail.next;
+        }
+        
+        carry = sum / 10;
+        if (l1 != null) l1 = l1.next;
+        if (l2 != null) l2 = l2.next;
+    }
+    
+    if (carry != 0) {
+        tail.next = new ListNode(carry);
+    }
+    
+    return head;
+}
+```
+
+### 7. 力扣 55：[跳跃游戏](https://leetcode.cn/problems/jump-game/)（贪心）
+
+```java
+public boolean canJump(int[] nums) {
+    int n = nums.length;
+    if (n == 1) return true;
+    int maxLen = 0;
+    
+    for (int i = 0; i < n; i++) {
+        maxLen = Math.max(i + nums[i], maxLen);
+        if (i >= maxLen && i != n - 1) return false;
+        if (maxLen == n - 1) return true;
+    }
+    
+    return true;
+}
+```
 
 
 ## 三、二叉树

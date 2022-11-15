@@ -5,42 +5,40 @@ import java.util.Random;
 
 public class QuickSort {
 
-    public static int[] quickSort(int[] arr) {
-        return sort(arr, 0, arr.length - 1);
+    public static int[] quickSort(int[] nums) {
+        return sort(nums, 0, nums.length - 1);
     }
 
-    private static int[] sort(int[] arr, int left, int right) {
+    public static int[] sort(int[] nums, int left, int right) {
         if (left < right) {
-            int index = randomizedPartition(arr, left, right);
-            sort(arr, left, index - 1);
-            sort(arr, index + 1, right);
+            int index = randomPartition(nums, left, right);
+            sort(nums, left, index - 1);
+            sort(nums, index + 1, right);
         }
-        return arr;
+        return nums;
     }
 
-    // 随机选取一个基准
-    private static int randomizedPartition(int[] nums, int left, int right) {
-        int i = new Random().nextInt(right - left + 1) + left;
-        swap(nums, left, i);
+    public static int randomPartition(int[] nums, int left, int right) {
+        int index = new Random().nextInt(right - left + 1) + left;
+        swap(nums, left, index);
         return partition(nums, left, right);
     }
 
-    private static int partition(int[] arr, int left, int right) {
+    public static int partition(int[] nums, int left, int right) {
         int index = left + 1;
         for (int i = index; i <= right; i++) {
-            if (arr[i] < arr[left]) {
-                swap(arr, index, i);
-                index++;
+            if (nums[i] < nums[left]) {
+                swap(nums, i, index++);
             }
         }
-        swap(arr, left, index - 1);
+        swap(nums, left, index - 1);
         return index - 1;
     }
 
-    private static void swap(int[] arr, int i, int j) {
-        int temp = arr[i];
-        arr[i] = arr[j];
-        arr[j] = temp;
+    public static void swap(int[] nums, int i, int j) {
+        int temp = nums[i];
+        nums[i] = nums[j];
+        nums[j] = temp;
     }
 
     public static void main(String[] args) {

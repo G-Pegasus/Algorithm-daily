@@ -528,6 +528,35 @@ public boolean canJump(int[] nums) {
 }
 ```
 
+### 8. 力扣 143：[重排链表](https://leetcode.cn/problems/reorder-list/)
+
+```java
+public void reorderList(ListNode head) {
+    ListNode temp = head, ans = head;
+    ArrayList<ListNode> list = new ArrayList<>();
+    
+    while (temp != null) {
+        list.add(new ListNode(temp.val));
+        temp = temp.next;
+    }
+    
+    int flag = 1;
+    int indexEnd = list.size() - 1, indexStart = 1;
+    while (indexStart <= indexEnd) {
+        if (flag % 2 == 1) {
+            ans.next = list.get(indexEnd);
+            indexEnd--;
+        } else {
+            ans.next = list.get(indexStart);
+            indexStart++;
+        }
+        
+        ans = ans.next;
+        flag++;
+    }
+}
+```
+
 
 ## 三、二叉树
 
@@ -1436,5 +1465,54 @@ void dfs(char[][] grid, int r, int c) {
     dfs(grid, r, c + 1);
 }
 ```
+
+#### 力扣 93：[复原 IP 地址](https://leetcode.cn/problems/restore-ip-addresses/)
+
+```java
+public List<String> restoreIpAddresses(String s) {
+    List<String> list = new ArrayList<>();
+    Deque<String> deque = new ArrayDeque<>();
+    
+    if (s.length() < 4 || s.length() > 12) return list;
+   
+    dfs(s, s.length(), 0, 4, list, deque);
+    return list;
+}
+
+void dfs(String s, int len, int begin, int residue, List<String> list, Deque<String> deque) {
+    if (begin == len && residue == 0) {
+        list.add(String.join(".", deque));
+        return;
+    }
+    
+    for (int i = begin; i < begin + 3; i++) {
+        if (i >= len) break;
+        if (residue * 3 < len - i) continue;
+        
+        if (isJudge(s, begin, i)) {
+            String currentSegment = s.substring(begin, i + 1);
+            deque.offerLast(currentSegment);
+            dfs(s, len, i + 1, residue - 1, list, deque);
+            deque.pollLast();
+        }
+    }
+}
+
+// 判断该段数字是否合法
+boolean isJudge(String s, int left, int right) {
+    int len = right - left + 1;
+    
+    if (len > 1 && s.charAt(left) == '0') return false;
+    
+    int res = 0;
+    while (left <= right) {
+        res = res * 10 + s.charAt(left) - '0';
+        left++;
+    }
+    
+    return res >= 0 && res <= 255;
+}
+```
+
 
 

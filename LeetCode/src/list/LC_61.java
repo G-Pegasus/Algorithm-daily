@@ -1,5 +1,8 @@
 package list;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class LC_61 {
 
     public static ListNode rotateRight(ListNode head, int k) {
@@ -39,5 +42,12 @@ public class LC_61 {
         head.next.next.next = new ListNode(4);
         head.next.next.next.next = new ListNode(5);
         System.out.println(rotateRight(head, 1).val);
+
+        List<String> list = new ArrayList<>();
+        list.add("1");
+        list.add("2");
+        list.add("3");
+        String[] strs = new String[list.size()];
+        list.toArray(strs);
     }
 }
